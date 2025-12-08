@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bluesky Celestial Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(160deg, #8b79a8, #c5a9ff); 
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      margin: 0;
+      transition: background 1s ease; 
+    }
+    
+    .bg-Air {
+      background: linear-gradient(160deg, #9bb5d1, #cde7ff); 
+    }
+    .bg-Earth {
+      background: linear-gradient(160deg, #7c634d, #b59f8c); 
+    }
+    .bg-Fire {
+      background: linear-gradient(160deg, #f27c3a, #ffbb8c); 
+    }
+    .bg-Water {
+      background: linear-gradient(160deg, #5a8ab9, #a0c9e8); 
+    }
+
+    .card {
+      background: transparent; 
+      backdrop-filter: none;
+      border-radius: 20px;
+      padding: 30px 25px;
+      text-align: center;
+      width: 90%;
+      max-width: 430px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+
+    input, #generateBtn {
+      width: 93%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 1rem;
+      outline: none;
+      display: block; 
+      box-sizing: border-box; 
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hidden-input {
+        display: none !important;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #ffffff33; 
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+      box-sizing: border-box;
+      max-width: 93%;
+      margin: 0 auto 20px auto; 
+    }
+    
+    #generateBtn {
+        max-width: 100%;
+    }
+
+    button:hover {
+      background: white;
+      color: #9b89b8; 
+    }
+
+    .profile-card {
+      margin-top: 25px;
+      text-align: left;
+      border-radius: 15px;
+      padding: 15px;
+      transition: background 0.5s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .element-card-Air { 
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.3), rgba(180, 190, 200, 0.15));
+      backdrop-filter: blur(10px);
+    }
+    .element-card-Earth { 
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.25), rgba(130, 95, 70, 0.1));
+      backdrop-filter: blur(10px);
+    }
+    .element-card-Fire { 
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.3), rgba(230, 140, 80, 0.15)); 
+      backdrop-filter: blur(10px);
+    }
+    .element-card-Water { 
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.3), rgba(106, 154, 201, 0.15));
+      backdrop-filter: blur(10px);
+    }
+
+    .attributes-grid {
+      display: flex;
+      flex-direction: column; 
+      gap: 10px; 
+      margin-top: 10px;
+    }
+
+    .attribute-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px; 
+        width: 100%; 
+    }
+
+    .attribute-box {
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2); 
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      min-height: 130px; 
+      display: flex;
+      flex-direction: column; 
+      justify-content: space-between; 
+      align-items: center;
+      flex-basis: 50%; 
+      flex-grow: 1; 
+    }
+    
+    .soul-color-box {
+        min-height: 80px; 
+        transition: background-color 0.5s ease;
+        justify-content: center; 
+        gap: 5px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    
+    .soul-color-box #signatureHex { 
+        font-weight: 700; 
+        font-size: 2.8rem; 
+        display: block;
+        line-height: 1;
+        margin: 5px 0;
+        color: inherit; 
+    }
+    
+    .soul-color-box .info-label {
+        font-weight: 400;
+        font-size: 0.8rem;
+    }
+    
+    #soulSisterProb {
+        font-size: 0.75rem;
+        font-weight: 600;
+        opacity: 0.8;
+        line-height: 1;
+        margin-top: 5px;
+    }
+
+    .info-label {
+        color: inherit; 
+    }
+    
+    .info-icon-large {
+        font-size: 3.5rem; 
+        line-height: 1;
+        margin: 5px 0; 
+    }
+    
+    .info-value-text {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: white;
+        line-height: 1.2;
+    }
+    
+    #box1 .info-label, #box2 .info-label, #box3 .info-label, #box4 .info-label,
+    #box1 .info-value-text, #box2 .info-value-text, #box3 .info-value-text, #box4 .info-value-text {
+        color: white;
+    }
+
+    .handle-display {
+      margin-bottom: 15px;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #ffffff;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+    }
+    
+    .progress-container, #progressNote, #timerDisplay {
+        display: none; 
+    }
+    
+    #downloadBtn {
+        display: none;
+        margin-top: 20px;
+        background: #fff;
+        color: #9b89b8;
+    }
+
+    #downloadBtn:hover {
+        background: #e6e6fa;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="card">
+
+    <h1>Bluesky Celestial Profile v1.0</h1>
+
+    <input type="text" id="handleInput" placeholder="Enter handle (e.g. @fralexander.bsky.social)">
+    <button id="generateBtn" onclick="generateProfile()">Generate Celestial Profile</button>
+
+    <div id="progressNote">Searching for account creation date...</div>
+
+    <div id="profileContainer" class="profile-card" style="display: none;">
+        
+        <div class="handle-display" id="handleDisplay"></div>
+        
+        <div class="attributes-grid">
+            <div class="attribute-row">
+                <div class="attribute-box" id="box1">
+                    <span class="info-label">Element</span>
+                    <span id="elementValueIcon" class="info-icon-large"></span>
+                    <span id="elementValueText" class="info-value-text"></span>
+                </div>
+                <div class="attribute-box" id="box2">
+                    <span class="info-label">Animal</span>
+                    <span id="totemValueIcon" class="info-icon-large"></span>
+                    <span id="totemValueText" class="info-value-text"></span>
+                </div>
+            </div>
+            
+            <div class="attribute-row">
+                <div class="attribute-box" id="box3">
+                    <span class="info-label">Talisman</span>
+                    <span id="stoneValueIcon" class="info-icon-large"></span>
+                    <span id="stoneValueText" class="info-value-text"></span>
+                </div>
+                <div class="attribute-box" id="box4">
+                    <span class="info-label">Aura</span>
+                    <span id="auraValueIcon" class="info-icon-large"></span>
+                    <span id="auraValueText" class="info-value-text"></span>
+                </div>
+            </div>
+
+            <div class="attribute-row" style="margin-top: 10px;">
+                <div class="attribute-box soul-color-box" id="box5" style="flex-basis: 100%;">
+                    <span class="info-label" id="signatureText">Soul Color</span>
+                    <span id="signatureHex"></span>
+                    <span id="soulSisterProb"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="downloadBtn" onclick="downloadCard()">Download Profile Image</button>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+
+function getElement(month) {
+    const elements = [
+        { name: "Earth", emoji: "⛰️", color: "bg-Earth", cardColor: "element-card-Earth" }, 
+        { name: "Earth", emoji: "⛰️", color: "bg-Earth", cardColor: "element-card-Earth" }, 
+        { name: "Air", emoji: "💨", color: "bg-Air", cardColor: "element-card-Air" },     
+        { name: "Air", emoji: "💨", color: "bg-Air", cardColor: "element-card-Air" },     
+        { name: "Air", emoji: "💨", color: "bg-Air", cardColor: "element-card-Air" },     
+        { name: "Fire", emoji: "🔥", color: "bg-Fire", cardColor: "element-card-Fire" },   
+        { name: "Fire", emoji: "🔥", color: "bg-Fire", cardColor: "element-card-Fire" },   
+        { name: "Fire", emoji: "🔥", color: "bg-Fire", cardColor: "element-card-Fire" },   
+        { name: "Water", emoji: "💧", color: "bg-Water", cardColor: "element-card-Water" }, 
+        { name: "Water", emoji: "💧", color: "bg-Water", cardColor: "element-card-Water" }, 
+        { name: "Water", emoji: "💧", color: "bg-Water", cardColor: "element-card-Water" }, 
+        { name: "Earth", emoji: "⛰️", color: "bg-Earth", cardColor: "element-card-Earth" }  
+    ];
+    return elements[month];
+}
+
+function getTotem(day) {
+    const totems = [
+        { name: "Wolf", emoji: "🐺" }, { name: "Tiger", emoji: "🐅" }, { name: "Serpent", emoji: "🐍" },
+        { name: "Eagle", emoji: "🦅" }, { name: "Lion", emoji: "🦁" }, { name: "Fox", emoji: "🦊" },
+        { name: "Owl", emoji: "🦉" }, { name: "Bear", emoji: "🐻" }, { name: "Panther", emoji: "🐆" },
+        { name: "Dolphin", emoji: "🐬" }, { name: "Horse", emoji: "🐎" }, { name: "Dragon", emoji: "🐉" }
+    ];
+
+    if (day >= 1 && day <= 31) {
+        const index = (day - 1) % 12; 
+        return totems[index];
+    }
+    return { name: "Unknown", emoji: "❓" };
+}
+
+function getStone(hour) {
+    const index = Math.floor(hour / 4);
+    const stones = [
+        { name: "Sapphire", emoji: "💙" }, { name: "Emerald", emoji: "💚" }, { name: "Ruby", emoji: "❤️" },
+        { name: "Amethyst", emoji: "💜" }, { name: "Obsidian", emoji: "🖤" }, { name: "Diamond", emoji: "💎" }
+    ];
+    return stones[index] || { name: "Unknown", emoji: "❓" };
+}
+
+function getAura(minute) {
+    const index = Math.floor(minute / 15);
+    const auras = [
+        { name: "Celestial", emoji: "☁️" }, { name: "Astralis", emoji: "✨" }, 
+        { name: "Shadow", emoji: "🌑" }, { name: "Solar", emoji: "☀️" }
+    ];
+    return auras[index] || { name: "Unknown", emoji: "❓" };
+}
+
+function getElementIndex(month) {
+    const indices = [4, 4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4]; 
+    return indices[month]; 
+}
+function getTotemIndex(day) {
+    return ((day - 1) % 12) + 1; 
+}
+function getStoneIndex(hour) {
+    return Math.floor(hour / 4) + 1; 
+}
+function getAuraIndex(minute) {
+    return Math.floor(minute / 15) + 1; 
+}
+
+function getTextColor(hexColor) {
+    const r = parseInt(hexColor.substring(1, 3), 16);
+    const g = parseInt(hexColor.substring(3, 5), 16);
+    const b = parseInt(hexColor.substring(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5 ? '#000000' : '#ffffff'; 
+}
+
+function generateUniqueColor(elementIndex, totemIndex, stoneIndex, auraIndex) {
+    const L = 11; 
+    const stepSize = 25; 
+
+    const E_mult = 12 * 6 * 4; 
+    const T_mult = 6 * 4;      
+    const S_mult = 4;          
+    
+    const I = (elementIndex - 1) * E_mult + 
+              (totemIndex - 1) * T_mult + 
+              (stoneIndex - 1) * S_mult + 
+              (auraIndex - 1);
+
+    const R_level = Math.floor(I / (L * L)); 
+    const G_level = Math.floor((I % (L * L)) / L);
+    const B_level = I % L;
+
+    const R_hex = (R_level * stepSize).toString(16).padStart(2, '0');
+    const G_hex = (G_level * stepSize).toString(16).padStart(2, '0');
+    const B_hex = (B_level * stepSize).toString(16).padStart(2, '0');
+    
+    return `#${R_hex}${G_hex}${B_hex}`.toUpperCase(); 
+}
+
+async function generateProfile() {
+    const handleInput = document.getElementById('handleInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const handle = handleInput.value.trim();
+    if (!handle) return alert("Please enter a Bluesky handle.");
+
+    const profileContainer = document.getElementById('profileContainer');
+    const progressNote = document.getElementById('progressNote');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const body = document.body;
+    
+    progressNote.style.display = "block";
+    profileContainer.style.display = "none";
+    downloadBtn.style.display = "none";
+
+    handleInput.classList.add('hidden-input');
+    generateBtn.classList.add('hidden-input');
+
+    body.style.background = '';
+    
+    try {
+        const handleToSearch = encodeURIComponent(handle.replace('@', ''));
+
+        const resolveResp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handleToSearch}`);
+        if (!resolveResp.ok) throw new Error('Could not resolve handle.');
+        const { did } = await resolveResp.json();
+
+        const feedUrl = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed');
+        feedUrl.searchParams.set('actor', did);
+        feedUrl.searchParams.set('limit', '100'); 
+
+        const resp = await fetch(feedUrl);
+        if (!resp.ok) throw new Error('Error fetching feed data.');
+        const json = await resp.json();
+        
+        let oldestPostDate = null;
+        
+        if (json.feed && json.feed.length > 0) {
+            let earliestTimestamp = Infinity;
+            
+            json.feed.forEach(entry => {
+                const p = entry.post;
+                if (p && p.record && p.record.createdAt) {
+                    const postTimestamp = new Date(p.record.createdAt).getTime();
+                    
+                    if (postTimestamp < earliestTimestamp) {
+                        earliestTimestamp = postTimestamp;
+                        oldestPostDate = p.record.createdAt;
+                    }
+                }
+            });
+        }
+        
+        if (!oldestPostDate) throw new Error("Account creation date could not be found. Make sure the account has at least one public post.");
+
+        const creationDate = new Date(oldestPostDate);
+        const month = creationDate.getMonth();      
+        
+        const element = getElement(month);
+        const totem = getTotem(creationDate.getDate());
+        const stone = getStone(creationDate.getHours());
+        const aura = getAura(creationDate.getMinutes());
+        
+        const elementIndex = getElementIndex(month);
+        const totemIndex = getTotemIndex(creationDate.getDate());
+        const stoneIndex = getStoneIndex(creationDate.getHours());
+        const auraIndex = getAuraIndex(creationDate.getMinutes());
+        
+        const uniqueHexColor = generateUniqueColor(elementIndex, totemIndex, stoneIndex, auraIndex);
+
+        
+        body.className = element.color; 
+        profileContainer.className = `profile-card ${element.cardColor}`; 
+        
+        document.getElementById('handleDisplay').textContent = `Celestial Profile for ${handle}`;
+        
+        document.getElementById('elementValueIcon').textContent = element.emoji;
+        document.getElementById('elementValueText').textContent = element.name;
+        
+        document.getElementById('totemValueIcon').textContent = totem.emoji;
+        document.getElementById('totemValueText').textContent = totem.name;
+        
+        document.getElementById('stoneValueIcon').textContent = stone.emoji;
+        document.getElementById('stoneValueText').textContent = stone.name;
+        
+        document.getElementById('auraValueIcon').textContent = aura.emoji;
+        document.getElementById('auraValueText').textContent = aura.name;
+
+        const signatureBox = document.getElementById('box5');
+        const signatureText = document.getElementById('signatureText');
+        const signatureHex = document.getElementById('signatureHex');
+        const soulSisterProb = document.getElementById('soulSisterProb');
+        const textColor = getTextColor(uniqueHexColor);
+        
+        signatureBox.style.backgroundColor = uniqueHexColor;
+        signatureBox.style.color = textColor; 
+        
+        signatureText.textContent = "Soul Color";
+        
+        signatureHex.textContent = uniqueHexColor;
+        
+        soulSisterProb.textContent = "Chances of finding a soulmate 0.087%";
+
+        
+        progressNote.style.display = "none";
+        profileContainer.style.display = "block";
+        downloadBtn.style.display = "block";
+
+    } catch (err) {
+        alert("Error: " + err.message);
+        
+        handleInput.classList.remove('hidden-input');
+        generateBtn.classList.remove('hidden-input');
+        body.className = '';
+        body.style.background = 'linear-gradient(160deg, #8b79a8, #c5a9ff)';
+        
+        progressNote.style.display = "none";
+        profileContainer.style.display = "none";
+    }
+}
+
+function downloadCard(){
+  const profileToDownload = document.getElementById('profileContainer'); 
+  const body = document.body;
+  
+  let currentBgClass = body.className.split(' ').find(c => c.startsWith('bg-'));
+  let fallbackColor = '#8b79a8'; 
+
+  if (currentBgClass === 'bg-Air') fallbackColor = '#9bb5d1'; 
+  else if (currentBgClass === 'bg-Earth') fallbackColor = '#7c634d'; 
+  else if (currentBgClass === 'bg-Fire') fallbackColor = '#f27c3a'; 
+  else if (currentBgClass === 'bg-Water') fallbackColor = '#5a8ab9'; 
+
+  html2canvas(profileToDownload,{backgroundColor: fallbackColor, scale:2}).then(canvas=>{
+    const link=document.createElement('a');
+    link.download='bluesky_celestial_profile.png'; 
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+</script>
+
+</body>
+</html>
