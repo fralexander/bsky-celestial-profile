@@ -276,7 +276,6 @@
                 </div>
             </div>
         </div>
-		<!-- juste avant la fermeture du div profileContainer -->
 		<div id="creationDateDisplay" style="font-size: 0.7rem; opacity: 0.7; text-align: right; margin-top: 8px;">
 		</div>
     </div>
@@ -384,9 +383,6 @@ function generateUniqueColor(elementIndex, totemIndex, stoneIndex, auraIndex) {
     return `#${R_hex}${G_hex}${B_hex}`.toUpperCase(); 
 }
 
-/* ---------------------------
-   FONCTION generateProfile (MODIFIÉE)
-   --------------------------- */
 async function generateProfile() {
     const handleInput = document.getElementById('handleInput');
     const generateBtn = document.getElementById('generateBtn');
@@ -505,7 +501,7 @@ async function generateProfile() {
         
         signatureHex.textContent = uniqueHexColor;
         
-        soulSisterProb.textContent = "Chances of finding a soulmate 0.087%";
+        soulSisterProb.textContent = "(chances of finding a bsky soulmate are 0.087%)";
 
         
         progressNote.style.display = "none";
