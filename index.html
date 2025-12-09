@@ -230,7 +230,7 @@
 
   <div class="card" id="card">
 
-    <h1>Bluesky Celestial Profile v1.0</h1>
+    <h1>Bluesky Celestial Profile v1.1</h1>
 
     <input type="text" id="handleInput" placeholder="Enter handle (e.g. @fralexander.bsky.social)">
     <button id="generateBtn" onclick="generateProfile()">Generate Celestial Profile</button>
@@ -276,6 +276,9 @@
                 </div>
             </div>
         </div>
+		<!-- juste avant la fermeture du div profileContainer -->
+		<div id="creationDateDisplay" style="font-size: 0.7rem; opacity: 0.7; text-align: right; margin-top: 8px;">
+		</div>
     </div>
 
     <button id="downloadBtn" onclick="downloadCard()">Download Profile Image</button>
@@ -381,11 +384,14 @@ function generateUniqueColor(elementIndex, totemIndex, stoneIndex, auraIndex) {
     return `#${R_hex}${G_hex}${B_hex}`.toUpperCase(); 
 }
 
+/* ---------------------------
+   FONCTION generateProfile (MODIFIÉE)
+   --------------------------- */
 async function generateProfile() {
     const handleInput = document.getElementById('handleInput');
     const generateBtn = document.getElementById('generateBtn');
-    const handle = handleInput.value.trim();
-    if (!handle) return alert("Please enter a Bluesky handle.");
+    const handleRaw = handleInput.value.trim();
+    if (!handleRaw) return alert("Please enter a Bluesky handle.");
 
     const profileContainer = document.getElementById('profileContainer');
     const progressNote = document.getElementById('progressNote');
@@ -402,52 +408,69 @@ async function generateProfile() {
     body.style.background = '';
     
     try {
-        const handleToSearch = encodeURIComponent(handle.replace('@', ''));
+        // Normaliser le handle : accepter "@fralexander", "fralexander", "fralexander.bsky.social"
+        let handle = handleRaw.replace(/^@/, '').trim();
+        if (!handle.includes('.')) handle = handle + '.bsky.social';
 
-        const resolveResp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${handleToSearch}`);
-        if (!resolveResp.ok) throw new Error('Could not resolve handle.');
-        const { did } = await resolveResp.json();
-
-        const feedUrl = new URL('https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed');
-        feedUrl.searchParams.set('actor', did);
-        feedUrl.searchParams.set('limit', '100'); 
-
-        const resp = await fetch(feedUrl);
-        if (!resp.ok) throw new Error('Error fetching feed data.');
-        const json = await resp.json();
-        
-        let oldestPostDate = null;
-        
-        if (json.feed && json.feed.length > 0) {
-            let earliestTimestamp = Infinity;
-            
-            json.feed.forEach(entry => {
-                const p = entry.post;
-                if (p && p.record && p.record.createdAt) {
-                    const postTimestamp = new Date(p.record.createdAt).getTime();
-                    
-                    if (postTimestamp < earliestTimestamp) {
-                        earliestTimestamp = postTimestamp;
-                        oldestPostDate = p.record.createdAt;
-                    }
-                }
-            });
+        // 1) Essayer .well-known pour récupérer le DID (méthode sans CORS)
+        let did = null;
+        try {
+            const wellKnownResp = await fetch(`https://${handle}/.well-known/atproto-did`);
+            if (wellKnownResp.ok) {
+                did = (await wellKnownResp.text()).trim();
+            }
+        } catch (e) {
+            // ignore - we'll fallback to resolveHandle
         }
-        
-        if (!oldestPostDate) throw new Error("Account creation date could not be found. Make sure the account has at least one public post.");
 
-        const creationDate = new Date(oldestPostDate);
-        const month = creationDate.getMonth();      
+        // 2) Si pas de DID via .well-known, fallback sur resolveHandle endpoint
+        if (!did) {
+            try {
+                const resolveResp = await fetch(`https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=${encodeURIComponent(handle)}`);
+                if (!resolveResp.ok) throw new Error('Could not resolve handle.');
+                const resolved = await resolveResp.json();
+                did = resolved?.did || null;
+            } catch (e) {
+                throw new Error('Could not resolve handle to DID (tried .well-known and resolveHandle).');
+            }
+        }
+
+        if (!did) throw new Error('DID not found for this handle.');
+
+        // 3) Récupérer le profil via DID (doit contenir createdAt)
+        const profileResp = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`);
+        if (!profileResp.ok) throw new Error('Error fetching profile.');
+        const profile = await profileResp.json();
+
+        // 4) UTILISER EXCLUSIVEMENT createdAt
+        if (!profile.createdAt) {
+            // Si createdAt absent : on renvoie une erreur claire.
+            throw new Error("The profile does not expose 'createdAt'. Cannot generate based on true creation date.");
+        }
+
+        const creationDate = new Date(profile.createdAt);
+		
+		// ajouter après tout le reste de génération
+		const creationDateDisplay = document.getElementById('creationDateDisplay');
+		creationDateDisplay.textContent = `Profile Bday: ${creationDate.toUTCString()}`;
+
+
+        // extraire les composants UTC pour cohérence
+        const month = creationDate.getUTCMonth();      
+        const day = creationDate.getUTCDate();
+        const hour = creationDate.getUTCHours();
+        const minute = creationDate.getUTCMinutes();
         
+        // 5) Calculs et génération comme avant, basés uniquement sur createdAt
         const element = getElement(month);
-        const totem = getTotem(creationDate.getDate());
-        const stone = getStone(creationDate.getHours());
-        const aura = getAura(creationDate.getMinutes());
+        const totem = getTotem(day);
+        const stone = getStone(hour);
+        const aura = getAura(minute);
         
         const elementIndex = getElementIndex(month);
-        const totemIndex = getTotemIndex(creationDate.getDate());
-        const stoneIndex = getStoneIndex(creationDate.getHours());
-        const auraIndex = getAuraIndex(creationDate.getMinutes());
+        const totemIndex = getTotemIndex(day);
+        const stoneIndex = getStoneIndex(hour);
+        const auraIndex = getAuraIndex(minute);
         
         const uniqueHexColor = generateUniqueColor(elementIndex, totemIndex, stoneIndex, auraIndex);
 
@@ -455,7 +478,7 @@ async function generateProfile() {
         body.className = element.color; 
         profileContainer.className = `profile-card ${element.cardColor}`; 
         
-        document.getElementById('handleDisplay').textContent = `Celestial Profile for ${handle}`;
+        document.getElementById('handleDisplay').textContent = `Celestial Profile for ${handleRaw}`;
         
         document.getElementById('elementValueIcon').textContent = element.emoji;
         document.getElementById('elementValueText').textContent = element.name;
